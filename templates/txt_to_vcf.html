@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TXT to VCF Converter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            border-radius: 8px !important;
+        }
+
+        .navbar .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .wizard-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .wizard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .wizard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .wizard-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex: 1;
+            max-width: 150px;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-number {
+            background: white;
+            color: #667eea;
+            transform: scale(1.1);
+        }
+
+        .step.completed .step-number {
+            background: #28a745;
+            color: white;
+        }
+
+        .step-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .step.active .step-label {
+            color: white;
+            font-weight: 600;
+        }
+
+        .step.completed .step-label {
+            color: white;
+            font-weight: 500;
+        }
+
+        .step-connector {
+            position: absolute;
+            top: 25px;
+            left: 70px;
+            width: 60px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .step:last-child .step-connector {
+            display: none;
+        }
+
+        .wizard-content {
+            padding: 40px;
+            min-height: 500px;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .mode-selection {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .mode-card {
+            border: 2px solid #dee2e6;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .mode-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .mode-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .mode-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .mode-card.selected .mode-icon {
+            color: white;
+        }
+
+        .mode-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .mode-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            opacity: 0.8;
+        }
+
+        .upload-area {
+            border: 3px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 60px 30px;
+            text-align: center;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #28a745;
+            background: rgba(40, 167, 69, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .upload-subtext {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .file-info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .file-list {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .wizard-navigation {
+            background: #f8f9fa;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .mode-selection {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .step {
+                margin: 0 10px;
+            }
+
+            .step-connector {
+                width: 40px;
+                left: 50px;
+            }
+
+            .wizard-content {
+                padding: 20px;
+            }
+
+            .wizard-navigation {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <i class="bi bi-file-text"></i> Werewolf CV
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">
+                            <i class="bi bi-house"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('txt_to_vcf') }}">
+                            <i class="bi bi-arrow-up-circle"></i> TXT to VCF
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('vcf_to_txt') }}">
+                            <i class="bi bi-arrow-down-circle"></i> VCF to TXT
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_navy') }}">
+                            <i class="bi bi-people"></i> Admin & Navy
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('gabung_txt') }}">
+                            <i class="bi bi-union"></i> Gabung TXT
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('gabung_vcf') }}">
+                            <i class="bi bi-collection"></i> Gabung VCF
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('split_txt') }}">
+                            <i class="bi bi-scissors"></i> Split TXT
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            <i class="bi bi-person-circle"></i> API: {{ session.api_key }}
+                            {% if api_key_expiry %}
+                            <br><small class="text-muted" style="font-size: 0.7rem;">
+                                <i class="bi bi-clock"></i> {{ api_key_expiry }}
+                                {% if api_key_remaining_days >= 0 %}
+                                    ({{ api_key_remaining_days }}h)
+                                {% else %}
+                                    <span class="text-danger">(EXP)</span>
+                                {% endif %}
+                            </small>
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="wizard-container">
+            <!-- Header -->
+            <div class="wizard-header">
+                <h1 class="wizard-title">
+                    <i class="bi bi-arrow-up-circle"></i> TXT to VCF Converter
+                </h1>
+                <p class="wizard-subtitle">Konversi daftar kontak dari format TXT ke file VCF yang dapat diimpor ke perangkat mobile</p>
+                
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <div class="step active" id="step1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Mode</div>
+                    </div>
+                    <div class="step" id="step2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Upload</div>
+                    </div>
+                    <div class="step" id="step3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Pengaturan</div>
+                    </div>
+                    <div class="step" id="step4">
+                        <div class="step-number">4</div>
+                        <div class="step-label">Proses</div>
+                    </div>
+                    <div class="step" id="step5">
+                        <div class="step-number">5</div>
+                        <div class="step-label">Selesai</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="wizard-content">
+                <!-- Step 1: Mode Selection -->
+                <div class="step-content active" id="stepContent1">
+                    <h3 class="text-center mb-4">Pilih Mode Konversi</h3>
+                    <div class="mode-selection">
+                        <div class="mode-card" data-mode="single">
+                            <div class="mode-icon">
+                                <i class="bi bi-file-earmark-arrow-up"></i>
+                            </div>
+                            <h4 class="mode-title">Single Convert</h4>
+                            <p class="mode-description">
+                                Upload 1 file TXT dan bagi menjadi beberapa file VCF sesuai keinginan Anda.
+                                Cocok untuk file TXT besar yang ingin dibagi.
+                            </p>
+                        </div>
+                        <div class="mode-card" data-mode="multi">
+                            <div class="mode-icon">
+                                <i class="bi bi-files"></i>
+                            </div>
+                            <h4 class="mode-title">Multi Convert</h4>
+                            <p class="mode-description">
+                                Upload beberapa file TXT dan konversi masing-masing menjadi 1 file VCF.
+                                Cocok untuk konversi batch beberapa file.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: File Upload -->
+                <div class="step-content" id="stepContent2">
+                    <!-- Single Upload -->
+                    <div id="singleUpload" style="display: none;">
+                        <h3 class="text-center mb-4">Upload File TXT</h3>
+                        <div class="upload-area" id="singleUploadArea">
+                            <div class="upload-icon">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                            </div>
+                            <p class="upload-text">Drag & drop file TXT di sini</p>
+                            <p class="upload-subtext">atau klik untuk memilih file</p>
+                            <input type="file" id="singleFileInput" accept=".txt" style="display: none;">
+                        </div>
+                        
+                        <!-- File Info -->
+                        <div id="singleFileInfo" style="display: none;">
+                            <div class="file-info">
+                                <h5><i class="bi bi-file-earmark-check"></i> Informasi File</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Nama File:</strong> <span id="singleFileName">-</span></p>
+                                        <p><strong>Ukuran File:</strong> <span id="singleFileSize">-</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Total Baris:</strong> <span id="singleTotalLines">-</span></p>
+                                        <p><strong>Kontak Valid:</strong> <span id="singleValidContacts">-</span></p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Preview -->
+                                <div class="mt-3">
+                                    <h6>Preview Kontak:</h6>
+                                    <div id="singleContactPreview" class="small text-muted"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Multi Upload -->
+                    <div id="multiUpload" style="display: none;">
+                        <h3 class="text-center mb-4">Upload Multiple File TXT</h3>
+                        <div class="upload-area" id="multiUploadArea">
+                            <div class="upload-icon">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                            </div>
+                            <p class="upload-text">Drag & drop multiple file TXT di sini</p>
+                            <p class="upload-subtext">atau klik untuk memilih file (dapat memilih lebih dari 1)</p>
+                            <input type="file" id="multiFileInput" accept=".txt" multiple style="display: none;">
+                        </div>
+                        
+                        <!-- Files Info -->
+                        <div id="multiFilesInfo" style="display: none;">
+                            <div class="file-info">
+                                <h5><i class="bi bi-files"></i> File yang Diupload</h5>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <p><strong>Total File:</strong> <span id="multiTotalFiles">0</span></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Total Kontak:</strong> <span id="multiTotalContacts">0</span></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Total Ukuran:</strong> <span id="multiTotalSize">0</span></p>
+                                    </div>
+                                </div>
+                                
+                                <!-- File List -->
+                                <div id="multiFileList"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Settings -->
+                <div class="step-content" id="stepContent3">
+                    <h3 class="text-center mb-4"><i class="bi bi-gear"></i> Pengaturan Konversi</h3>
+                    
+                    <!-- Single Settings -->
+                    <div id="singleSettings" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Contact Name Prefix -->
+                                <div class="mb-4">
+                                    <label for="singleNamePrefix" class="form-label">
+                                        <i class="bi bi-tag"></i> Prefix Nama Kontak (Opsional)
+                                    </label>
+                                    <input type="text" class="form-control" id="singleNamePrefix" placeholder="contoh: Customer">
+                                    <div class="form-text">Prefix akan ditambahkan ke setiap nama kontak</div>
+                                </div>
+
+                                <!-- Contacts per File -->
+                                <div class="mb-4">
+                                    <label for="singleFileCount" class="form-label">
+                                        <i class="bi bi-list-ol"></i> Jumlah Kontak per File VCF
+                                    </label>
+                                    <input type="number" class="form-control" id="singleFileCount" value="1000" min="1" max="10000">
+                                    <div class="form-text">File TXT akan dibagi berdasarkan jumlah ini</div>
+                                </div>
+
+                                <!-- File Start Number -->
+                                <div class="mb-4">
+                                    <label for="singleFileStartNumber" class="form-label">
+                                        <i class="bi bi-hash"></i> Angka Awal untuk Nama File
+                                    </label>
+                                    <input type="number" class="form-control" id="singleFileStartNumber" value="1" min="1" max="9999">
+                                    <div class="form-text">File akan dinamai: prefix 1.vcf, prefix 2.vcf, dst.</div>
+                                </div>
+
+                                <!-- Output Prefix -->
+                                <div class="mb-4">
+                                    <label for="singleOutputPrefix" class="form-label">
+                                        <i class="bi bi-file-earmark"></i> Prefix Nama File VCF (Opsional)
+                                    </label>
+                                    <input type="text" class="form-control" id="singleOutputPrefix" placeholder="contoh: contacts">
+                                    <div class="form-text">Prefix akan ditambahkan ke nama file VCF output</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <!-- Estimation -->
+                                <div class="alert alert-info">
+                                    <h6><i class="bi bi-calculator"></i> Estimasi Hasil:</h6>
+                                    <p class="mb-1">Total kontak: <span id="singleTotalContacts">-</span></p>
+                                    <p class="mb-1">Kontak per file: <span id="singleContactsPerFile">1000</span></p>
+                                    <p class="mb-0">File VCF: <span id="singleEstimatedFiles">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Multi Settings -->
+                    <div id="multiSettings" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Contact Name Prefix -->
+                                <div class="mb-4">
+                                    <label for="multiNamePrefix" class="form-label">
+                                        <i class="bi bi-tag"></i> Prefix Nama Kontak (Opsional)
+                                    </label>
+                                    <input type="text" class="form-control" id="multiNamePrefix" placeholder="contoh: Customer">
+                                    <div class="form-text">Prefix akan ditambahkan ke setiap nama kontak</div>
+                                </div>
+
+                                <!-- Filename Option -->
+                                <div class="mb-4">
+                                    <label class="form-label">Opsi Nama File Output:</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="filenameOption" id="useOriginalName" value="original" checked>
+                                        <label class="form-check-label" for="useOriginalName">
+                                            Gunakan nama file asli
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="filenameOption" id="useCustomPrefix" value="custom">
+                                        <label class="form-check-label" for="useCustomPrefix">
+                                            Gunakan prefix custom
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Custom Prefix -->
+                                <div class="mb-4" id="customPrefixGroup" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <label for="multiOutputPrefix" class="form-label">
+                                                <i class="bi bi-file-earmark"></i> Prefix Nama File
+                                            </label>
+                                            <input type="text" class="form-control" id="multiOutputPrefix" placeholder="contoh: contacts">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="multiStartNumber" class="form-label">
+                                                <i class="bi bi-hash"></i> Angka Awal
+                                            </label>
+                                            <input type="number" class="form-control" id="multiStartNumber" value="1" min="1" max="9999">
+                                        </div>
+                                    </div>
+                                    <div class="form-text">File akan dinamai: <span id="multiFileNamePreview">prefix 1.vcf, prefix 2.vcf, dst.</span></div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <!-- Summary -->
+                                <div class="alert alert-info">
+                                    <h6><i class="bi bi-info-circle"></i> Ringkasan:</h6>
+                                    <p class="mb-1">Total file: <span id="multiTotalFiles">0</span></p>
+                                    <p class="mb-1">Total kontak: <span id="multiTotalContacts">0</span></p>
+                                    <p class="mb-0">Output: 1 file VCF per file TXT</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Processing -->
+                <div class="step-content" id="stepContent4">
+                    <h3 class="text-center mb-4"><i class="bi bi-gear-wide-connected"></i> Memproses Konversi</h3>
+                    
+                    <div class="text-center">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 4rem; height: 4rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        
+                        <div class="progress">
+                            <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%">
+                                <span id="progressText">0%</span>
+                            </div>
+                        </div>
+                        
+                        <p class="mt-3" id="processText">Memulai konversi...</p>
+                    </div>
+                </div>
+
+                <!-- Step 5: Result -->
+                <div class="step-content" id="stepContent5">
+                    <div class="result-card">
+                        <div class="result-icon">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <h2 class="result-title">Konversi Berhasil!</h2>
+                        <p>File TXT telah berhasil dikonversi ke format VCF</p>
+                        
+                        <div class="result-stats">
+                            <div class="stat-card">
+                                <div class="stat-number" id="resultOriginalFiles">-</div>
+                                <div class="stat-label">File TXT Asli</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="resultTotalContacts">-</div>
+                                <div class="stat-label">Total Kontak</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="resultVcfFiles">-</div>
+                                <div class="stat-label">File VCF Dibuat</div>
+                            </div>
+                        </div>
+                        
+                        <!-- File List -->
+                        <div class="file-list">
+                            <h5 class="mb-3">File yang Dihasilkan:</h5>
+                            <div id="resultFileList">
+                                <!-- File list akan diisi oleh JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-center gap-3 mt-4">
+                            <button class="btn btn-light btn-lg" id="downloadBtn">
+                                <i class="bi bi-download"></i> Download File
+                            </button>
+                            <button class="btn btn-outline-light btn-lg" onclick="location.reload()">
+                                <i class="bi bi-arrow-clockwise"></i> Konversi Lagi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="wizard-navigation">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousStep()">
+                    <i class="bi bi-arrow-left"></i> Kembali
+                </button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                    Lanjut <i class="bi bi-arrow-right"></i>
+                </button>
+                <button class="btn btn-primary" id="selectModeBtn" onclick="selectMode()" style="display: none;" disabled>
+                    Pilih Mode <i class="bi bi-arrow-right"></i>
+                </button>
+                <button class="btn btn-primary" id="startProcessBtn" onclick="startProcessing()" style="display: none;">
+                    Mulai Konversi <i class="bi bi-play"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentStep = 1;
+        let selectedMode = null;
+        let uploadedFiles = [];
+        let fileAnalysis = [];
+        let processedResult = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            updateNavigationButtons();
+        });
+
+        function initializeEventListeners() {
+            // Mode selection
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedMode = this.dataset.mode;
+                    document.getElementById('selectModeBtn').disabled = false;
+                });
+            });
+
+            // File upload events
+            setupFileUpload();
+            
+            // Setting update events for single mode
+            document.getElementById('singleFileCount').addEventListener('input', updateSingleEstimation);
+            document.getElementById('singleFileStartNumber').addEventListener('input', updateSingleEstimation);
+            document.getElementById('singleOutputPrefix').addEventListener('input', updateSingleEstimation);
+            
+            // Setting update events for multi mode
+            document.querySelectorAll('input[name="filenameOption"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const customGroup = document.getElementById('customPrefixGroup');
+                    if (this.value === 'custom') {
+                        customGroup.style.display = 'block';
+                        updateMultiPreview();
+                    } else {
+                        customGroup.style.display = 'none';
+                    }
+                });
+            });
+            
+            document.getElementById('multiOutputPrefix').addEventListener('input', updateMultiPreview);
+            document.getElementById('multiStartNumber').addEventListener('input', updateMultiPreview);
+        }
+
+        function setupFileUpload() {
+            // Single file upload
+            const singleUploadArea = document.getElementById('singleUploadArea');
+            const singleFileInput = document.getElementById('singleFileInput');
+
+            singleUploadArea.addEventListener('click', () => singleFileInput.click());
+            singleUploadArea.addEventListener('dragover', handleDragOver);
+            singleUploadArea.addEventListener('drop', handleSingleDrop);
+            singleFileInput.addEventListener('change', handleSingleFileSelect);
+
+            // Multi file upload
+            const multiUploadArea = document.getElementById('multiUploadArea');
+            const multiFileInput = document.getElementById('multiFileInput');
+
+            multiUploadArea.addEventListener('click', () => multiFileInput.click());
+            multiUploadArea.addEventListener('dragover', handleDragOver);
+            multiUploadArea.addEventListener('drop', handleMultiDrop);
+            multiFileInput.addEventListener('change', handleMultiFileSelect);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleSingleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files).filter(file => 
+                file.name.toLowerCase().endsWith('.txt')
+            );
+            if (files.length > 0) {
+                handleSingleFile(files[0]);
+            }
+        }
+
+        function handleMultiDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files).filter(file => 
+                file.name.toLowerCase().endsWith('.txt')
+            );
+            if (files.length > 0) {
+                handleMultiFiles(files);
+            }
+        }
+
+        function handleSingleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleSingleFile(file);
+            }
+        }
+
+        function handleMultiFileSelect(e) {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                handleMultiFiles(files);
+            }
+        }
+
+        function handleSingleFile(file) {
+            uploadedFiles = [file];
+            analyzeTxtFile(file).then(analysis => {
+                fileAnalysis = [analysis];
+                displaySingleFileInfo(file, analysis);
+                document.getElementById('nextBtn').disabled = false;
+            });
+        }
+
+        function handleMultiFiles(files) {
+            uploadedFiles = files;
+            Promise.all(files.map(analyzeTxtFile)).then(analyses => {
+                fileAnalysis = analyses;
+                displayMultiFilesInfo(files, analyses);
+                document.getElementById('nextBtn').disabled = false;
+            });
+        }
+
+        function analyzeTxtFile(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    
+                    // Parse dengan logika yang sama seperti backend
+                    const lines = content.split('\n').filter(line => line.trim());
+                    const totalLines = lines.length;
+                    
+                    // Hitung kontak valid ASLI dengan logika parsing yang sama dengan backend
+                    let validContactsCount = 0;
+                    lines.forEach(line => {
+                        const phone = extractPhoneFromLine(line);
+                        if (phone && phone.replace('+', '').length >= 8) {
+                            validContactsCount++;
+                        }
+                    });
+                    
+                    // Get preview lines
+                    const preview = lines.slice(0, 10);
+                    
+                    resolve({
+                        fileName: file.name,
+                        fileSize: formatFileSize(file.size),
+                        totalLines: totalLines,
+                        estimatedContacts: validContactsCount, // GUNAKAN HITUNGAN ASLI
+                        preview: preview
+                    });
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        function extractPhoneFromLine(line) {
+            /**
+             * Extract dan validasi phone number dari line text (sama seperti backend logic)
+             */
+            if (!line || !line.trim()) return null;
+            
+            let phone = null;
+            
+            // Parse different formats (sama seperti backend)
+            if (line.includes(',')) {
+                // Format: Nama,Nomor
+                const parts = line.split(',');
+                if (parts.length >= 2) {
+                    phone = cleanPhoneNumber(parts[1].trim());
+                }
+            } else if (line.includes(';')) {
+                // Format: Nama;Nomor
+                const parts = line.split(';');
+                if (parts.length >= 2) {
+                    phone = cleanPhoneNumber(parts[1].trim());
+                }
+            } else if (line.includes(':')) {
+                // Format: Nama: Nomor
+                const parts = line.split(':');
+                if (parts.length >= 2) {
+                    phone = cleanPhoneNumber(parts[1].trim());
+                }
+            } else if (line.includes('-') && /\d/.test(line)) {
+                // Format: Nama - Nomor
+                const parts = line.split('-');
+                if (parts.length >= 2) {
+                    phone = cleanPhoneNumber(parts[1].trim());
+                }
+            } else {
+                // Try to extract phone number from line
+                const phonePattern = /[+0-9][0-9+\s\-()]{6,}/g;
+                const matches = line.match(phonePattern);
+                if (matches && matches.length > 0) {
+                    for (const candidate of matches) {
+                        const cleaned = cleanPhoneNumber(candidate.trim());
+                        if (cleaned) {
+                            phone = cleaned;
+                            break;
+                        }
+                    }
+                } else {
+                    // Fallback: try whole line
+                    phone = cleanPhoneNumber(line.trim());
+                }
+            }
+            
+            return phone;
+        }
+
+        function cleanPhoneNumber(phone) {
+            /**
+             * Basic phone number cleaning (simplified version of backend)
+             */
+            if (!phone) return null;
+            
+            // Remove extra spaces and non-digit characters except +
+            phone = phone.replace(/[^\d+]/g, '');
+            
+            if (!phone) return null;
+            
+            // Basic validation: harus ada digit dan panjang minimal
+            if (!/\d/.test(phone) || phone.replace('+', '').length < 8) {
+                return null;
+            }
+            
+            // Simple format: pastikan ada + di awal jika belum ada
+            if (!phone.startsWith('+') && phone.length >= 8) {
+                phone = '+' + phone;
+            }
+            
+            return phone;
+        }
+
+        function displaySingleFileInfo(file, analysis) {
+            document.getElementById('singleFileName').textContent = analysis.fileName;
+            document.getElementById('singleFileSize').textContent = analysis.fileSize;
+            document.getElementById('singleTotalLines').textContent = analysis.totalLines.toLocaleString();
+            document.getElementById('singleValidContacts').textContent = analysis.estimatedContacts.toLocaleString();
+            
+            // Preview
+            const previewDiv = document.getElementById('singleContactPreview');
+            previewDiv.innerHTML = analysis.preview.slice(0, 5).map(line => 
+                `<div>${line.length > 50 ? line.substring(0, 50) + '...' : line}</div>`
+            ).join('');
+            
+            document.getElementById('singleFileInfo').style.display = 'block';
+        }
+
+        function displayMultiFilesInfo(files, analyses) {
+            const totalContacts = analyses.reduce((sum, analysis) => sum + analysis.estimatedContacts, 0);
+            const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+            
+            document.getElementById('multiTotalFiles').textContent = files.length.toLocaleString();
+            document.getElementById('multiTotalContacts').textContent = totalContacts.toLocaleString();
+            document.getElementById('multiTotalSize').textContent = formatFileSize(totalSize);
+            
+            // File list
+            const fileListDiv = document.getElementById('multiFileList');
+            fileListDiv.innerHTML = analyses.map((analysis, index) => `
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                    <div>
+                        <strong>${analysis.fileName}</strong><br>
+                        <small>Kontak Estimasi: ${analysis.estimatedContacts}</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="badge bg-primary">${analysis.fileSize}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('multiFilesInfo').style.display = 'block';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function updateFormatPreview() {
+            // This function is no longer needed for TXT to VCF, but keeping for compatibility
+        }
+
+        function updateSingleEstimation() {
+            if (!fileAnalysis[0]) return;
+            
+            const contactsPerFile = parseInt(document.getElementById('singleFileCount').value) || 1000;
+            const totalContacts = fileAnalysis[0].estimatedContacts;
+            const estimatedFiles = Math.ceil(totalContacts / contactsPerFile);
+            
+            document.getElementById('singleTotalContacts').textContent = totalContacts.toLocaleString();
+            document.getElementById('singleContactsPerFile').textContent = contactsPerFile.toLocaleString();
+            document.getElementById('singleEstimatedFiles').textContent = estimatedFiles.toLocaleString();
+        }
+
+        function updateMultiPreview() {
+            const prefix = document.getElementById('multiOutputPrefix').value.trim();
+            const startNumber = parseInt(document.getElementById('multiStartNumber').value) || 1;
+            const totalFiles = uploadedFiles ? uploadedFiles.length : 2;
+            
+            if (prefix) {
+                let preview = '';
+                if (totalFiles <= 3) {
+                    for (let i = 0; i < totalFiles; i++) {
+                        const fileNumber = startNumber + i;
+                        preview += `${prefix} ${fileNumber}.vcf`;
+                        if (i < totalFiles - 1) preview += ', ';
+                    }
+                } else {
+                    preview = `${prefix} ${startNumber}.vcf, ${prefix} ${startNumber + 1}.vcf, ..., ${prefix} ${startNumber + totalFiles - 1}.vcf`;
+                }
+                document.getElementById('multiFileNamePreview').textContent = preview;
+            } else {
+                document.getElementById('multiFileNamePreview').textContent = 'prefix 1.vcf, prefix 2.vcf, dst.';
+            }
+        }
+
+        function selectMode() {
+            if (selectedMode) {
+                nextStep();
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < 5) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        function showStep(step) {
+            // Hide all step content
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show current step content
+            document.getElementById(`stepContent${step}`).classList.add('active');
+            
+            // Update step indicators
+            for (let i = 1; i <= 5; i++) {
+                const stepElement = document.getElementById(`step${i}`);
+                stepElement.classList.remove('active', 'completed');
+                
+                if (i < step) {
+                    stepElement.classList.add('completed');
+                } else if (i === step) {
+                    stepElement.classList.add('active');
+                }
+            }
+            
+            // Handle step-specific logic
+            if (step === 2) {
+                // Show appropriate upload interface
+                if (selectedMode === 'single') {
+                    document.getElementById('singleUpload').style.display = 'block';
+                    document.getElementById('multiUpload').style.display = 'none';
+                } else {
+                    document.getElementById('singleUpload').style.display = 'none';
+                    document.getElementById('multiUpload').style.display = 'block';
+                }
+            } else if (step === 3) {
+                // Show appropriate settings interface
+                if (selectedMode === 'single') {
+                    document.getElementById('singleSettings').style.display = 'block';
+                    document.getElementById('multiSettings').style.display = 'none';
+                } else {
+                    document.getElementById('singleSettings').style.display = 'none';
+                    document.getElementById('multiSettings').style.display = 'block';
+                }
+                updateFormatPreview();
+            }
+            
+            updateNavigationButtons();
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const selectModeBtn = document.getElementById('selectModeBtn');
+            const startProcessBtn = document.getElementById('startProcessBtn');
+            
+            // Hide all buttons first
+            nextBtn.style.display = 'none';
+            selectModeBtn.style.display = 'none';
+            startProcessBtn.style.display = 'none';
+            
+            // Show previous button (except on first step)
+            prevBtn.style.display = currentStep === 1 ? 'none' : 'inline-block';
+            
+            if (currentStep === 1) {
+                selectModeBtn.style.display = 'inline-block';
+                selectModeBtn.disabled = !selectedMode;
+            } else if (currentStep === 2) {
+                nextBtn.style.display = 'inline-block';
+                nextBtn.disabled = uploadedFiles.length === 0;
+            } else if (currentStep === 3) {
+                startProcessBtn.style.display = 'inline-block';
+            } else if (currentStep === 4 || currentStep === 5) {
+                // No navigation buttons during processing or on result page
+            }
+        }
+
+        function startProcessing() {
+            nextStep(); // Go to processing step
+            
+            // Start progress animation
+            let progress = 0;
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const processText = document.getElementById('processText');
+            
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+            }, 200);
+            
+            // Process files
+            if (selectedMode === 'single') {
+                processSingleConvert().then(() => {
+                    clearInterval(progressInterval);
+                    progressBar.style.width = '100%';
+                    progressText.textContent = '100%';
+                    processText.textContent = 'Konversi selesai!';
+                    setTimeout(() => nextStep(), 1000);
+                });
+            } else {
+                processMultiConvert().then(() => {
+                    clearInterval(progressInterval);
+                    progressBar.style.width = '100%';
+                    progressText.textContent = '100%';
+                    processText.textContent = 'Konversi selesai!';
+                    setTimeout(() => nextStep(), 1000);
+                });
+            }
+        }
+
+        function processSingleConvert() {
+            const formData = new FormData();
+            formData.append('txt_file', uploadedFiles[0]);
+            formData.append('contact_name_prefix', document.getElementById('singleNamePrefix').value);
+            formData.append('contacts_per_file', document.getElementById('singleFileCount').value);
+            formData.append('file_start_number', document.getElementById('singleFileStartNumber').value);
+            formData.append('output_prefix', document.getElementById('singleOutputPrefix').value);
+            
+            return fetch('/convert_single', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                // Check if response is JSON (multiple files) or blob (single file)
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json().then(data => ({ type: 'json', data }));
+                } else {
+                    const contentDisposition = response.headers.get('Content-Disposition');
+                    let filename = 'converted_file.vcf';
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                        if (filenameMatch) {
+                            filename = filenameMatch[1];
+                        }
+                    }
+                    return response.blob().then(blob => ({ type: 'blob', blob, filename }));
+                }
+            })
+            .then(result => {
+                processedResult = result;
+                displaySingleResult();
+            });
+        }
+
+        function processMultiConvert() {
+            const formData = new FormData();
+            uploadedFiles.forEach((file, index) => {
+                formData.append('txt_files', file);
+            });
+            formData.append('contact_name_prefix', document.getElementById('multiNamePrefix').value);
+            formData.append('filename_option', document.querySelector('input[name="filenameOption"]:checked').value);
+            formData.append('output_prefix', document.getElementById('multiOutputPrefix').value);
+            formData.append('start_number', document.getElementById('multiStartNumber').value);
+            
+            return fetch('/convert_multi', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                return response.json().then(data => ({ type: 'json', data }));
+            })
+            .then(result => {
+                processedResult = result;
+                displayMultiResult();
+            });
+        }
+
+        function displaySingleResult() {
+            document.getElementById('resultOriginalFiles').textContent = '1';
+            document.getElementById('resultTotalContacts').textContent = fileAnalysis[0].estimatedContacts.toLocaleString();
+            document.getElementById('resultVcfFiles').textContent = processedResult.type === 'blob' ? '1' : processedResult.data.total_files.toLocaleString();
+            
+            if (processedResult.type === 'blob') {
+                // Single file result
+                document.getElementById('resultFileList').innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div><i class="bi bi-file-earmark text-success"></i> ${processedResult.filename}</div>
+                        <div class="badge bg-light text-dark">${formatFileSize(processedResult.blob.size)}</div>
+                    </div>
+                `;
+                document.getElementById('downloadBtn').onclick = () => downloadSingleFile();
+            } else {
+                // Multiple files result
+                const data = processedResult.data;
+                document.getElementById('resultVcfFiles').textContent = data.total_files.toLocaleString();
+                document.getElementById('resultFileList').innerHTML = data.files.map(file => `
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div><i class="bi bi-file-earmark text-success"></i> ${file.filename}</div>
+                        <div class="badge bg-light text-dark">${formatFileSize(file.size)}</div>
+                    </div>
+                `).join('');
+                document.getElementById('downloadBtn').onclick = () => downloadMultipleFiles();
+            }
+        }
+
+        function displayMultiResult() {
+            const data = processedResult.data;
+            document.getElementById('resultOriginalFiles').textContent = uploadedFiles.length.toLocaleString();
+            document.getElementById('resultTotalContacts').textContent = data.files.reduce((sum, f) => sum + (f.contacts || 0), 0).toLocaleString();
+            document.getElementById('resultVcfFiles').textContent = data.total_files.toLocaleString();
+            
+            document.getElementById('resultFileList').innerHTML = data.files.map(file => `
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div><i class="bi bi-file-earmark text-success"></i> ${file.filename}</div>
+                    <div class="badge bg-light text-dark">${formatFileSize(file.size)}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('downloadBtn').onclick = () => downloadMultipleFiles();
+        }
+
+        function downloadSingleFile() {
+            const url = URL.createObjectURL(processedResult.blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = processedResult.filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadMultipleFiles() {
+            const files = processedResult.data.files;
+            files.forEach((fileInfo, index) => {
+                setTimeout(() => {
+                    fetch(`/download_file/${fileInfo.file_id}`)
+                        .then(response => response.blob())
+                        .then(blob => {
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = fileInfo.filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                        });
+                }, index * 500);
+            });
+        }
+
+        function downloadMultipleFiles() {
+            const files = processedResult.data.files;
+            files.forEach((fileInfo, index) => {
+                setTimeout(() => {
+                    fetch(`/download_file/${fileInfo.file_id}`)
+                        .then(response => response.blob())
+                        .then(blob => {
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = fileInfo.filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                        });
+                }, index * 500); // Delay between downloads
+            });
+        }
+    </script>
+</body>
+</html>

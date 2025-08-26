@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - TXT Converter{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center text-white mb-5">
+            <h1 class="display-4">
+                <i class="bi bi-file-text"></i> 𝗪𝗲𝗿𝗲𝘄𝗼𝗹𝗳 𝗖𝗼𝗻𝘃𝗲𝗿𝘁𝗲𝗿 𝗧𝗼𝗼𝗹𝘀
+            </h1>
+            <p class="lead">Pilih fitur yang ingin Anda gunakan</p>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-xl-4 mb-4">
+        <div class="card card-custom h-100">
+            <div class="card-body text-center p-4">
+                <div class="mb-4">
+                    <i class="bi bi-arrow-up-circle display-1 text-primary"></i>
+                </div>
+                <h4 class="card-title">TXT to VCF</h4>
+                <p class="card-text text-muted">
+                    Konversi file kontak dalam format TXT menjadi file VCF yang dapat diimpor ke aplikasi kontak.
+                </p>
+                <ul class="list-unstyled text-start mb-4">
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Support format standar</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Batch processing</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Download otomatis</li>
+                </ul>
+                <a href="{{ url_for('txt_to_vcf') }}" class="btn btn-primary btn-custom">
+                    <i class="bi bi-arrow-right"></i> Mulai Konversi
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-4 mb-4">
+        <div class="card card-custom h-100">
+            <div class="card-body text-center p-4">
+                <div class="mb-4">
+                    <i class="bi bi-arrow-down-circle display-1 text-info"></i>
+                </div>
+                <h4 class="card-title">VCF to TXT</h4>
+                <p class="card-text text-muted">
+                    Ekstrak kontak dari file VCF dan simpan dalam format TXT yang mudah dibaca dan diedit.
+                </p>
+                <ul class="list-unstyled text-start mb-4">
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Multiple format output</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Merge multiple files</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Custom prefix/suffix</li>
+                </ul>
+                <a href="{{ url_for('vcf_to_txt') }}" class="btn btn-info btn-custom">
+                    <i class="bi bi-arrow-down-circle"></i> Mulai Ekstrak
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-4 mb-4">
+        <div class="card card-custom h-100">
+            <div class="card-body text-center p-4">
+                <div class="mb-4">
+                    <i class="bi bi-people display-1 text-warning"></i>
+                </div>
+                <h4 class="card-title">Admin & Navy</h4>
+                <p class="card-text text-muted">
+                    Buat kontak Admin dan Navy dengan nomor berurutan dari daftar nomor telepon yang di-paste.
+                </p>
+                <ul class="list-unstyled text-start mb-4">
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Auto sequential naming</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Separate admin & navy</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Custom contact names</li>
+                </ul>
+                <a href="{{ url_for('admin_navy') }}" class="btn btn-warning btn-custom">
+                    <i class="bi bi-people"></i> Buat Kontak
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-4 mb-4">
+        <div class="card card-custom h-100">
+            <div class="card-body text-center p-4">
+                <div class="mb-4">
+                    <i class="bi bi-union display-1 text-primary"></i>
+                </div>
+                <h4 class="card-title">Gabung TXT</h4>
+                <p class="card-text text-muted">
+                    Gabungkan multiple file TXT menjadi satu file dengan berbagai opsi separator dan format.
+                </p>
+                <ul class="list-unstyled text-start mb-4">
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Multiple file input</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Custom separator</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Optional file headers</li>
+                </ul>
+                <a href="{{ url_for('gabung_txt') }}" class="btn btn-primary btn-custom">
+                    <i class="bi bi-union"></i> Gabung File
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-4 mb-4">
+        <div class="card card-custom h-100">
+            <div class="card-body text-center p-4">
+                <div class="mb-4">
+                    <i class="bi bi-scissors display-1 text-success"></i>
+                </div>
+                <h4 class="card-title">Split TXT</h4>
+                <p class="card-text text-muted">
+                    Pisahkan file TXT besar menjadi beberapa file kecil dengan ukuran yang dapat Anda tentukan.
+                </p>
+                <ul class="list-unstyled text-start mb-4">
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Ukuran fleksibel</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Download dalam ZIP</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Cepat dan akurat</li>
+                </ul>
+                <a href="{{ url_for('split_txt') }}" class="btn btn-success btn-custom">
+                    <i class="bi bi-scissors"></i> Mulai Split
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-4 mb-4">
+        <div class="card card-custom h-100">
+            <div class="card-body text-center p-4">
+                <div class="mb-4">
+                    <i class="bi bi-collection display-1 text-success"></i>
+                </div>
+                <h4 class="card-title">Gabung VCF</h4>
+                <p class="card-text text-muted">
+                    Gabungkan beberapa file VCF menjadi satu file dengan nama kontak berurutan otomatis.
+                </p>
+                <ul class="list-unstyled text-start mb-4">
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Multiple file VCF</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Nama berurutan</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i> Custom prefix</li>
+                </ul>
+                <a href="{{ url_for('gabung_vcf') }}" class="btn btn-success btn-custom">
+                    <i class="bi bi-collection"></i> Mulai Gabung
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card card-custom">
+            <div class="card-body p-4">
+                <h5 class="card-title">
+                    <i class="bi bi-info-circle text-info"></i> Informasi Penggunaan
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-file-earmark-text"></i> Format File yang Didukung</h6>
+                        <ul class="list-unstyled">
+                            <li>• File dengan ekstensi .txt</li>
+                            <li>• Encoding UTF-8</li>
+                            <li>• Maksimal ukuran file: 10MB</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-shield-check"></i> Keamanan</h6>
+                        <ul class="list-unstyled">
+                            <li>• File diproses secara lokal</li>
+                            <li>• Tidak disimpan di server</li>
+                            <li>• API key ter-enkripsi</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

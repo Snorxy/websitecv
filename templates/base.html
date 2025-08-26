@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TXT Converter Tools{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card-custom {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .btn-custom {
+            border-radius: 25px;
+            padding: 10px 30px;
+        }
+        .navbar-custom {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        
+        .navbar-nav .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 5px;
+        }
+        
+        .navbar .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        
+        /* Mobile responsive navbar */
+        @media (max-width: 991px) {
+            .navbar-nav .nav-link {
+                padding: 10px 15px;
+                margin: 2px 0;
+            }
+            
+            .navbar-nav .nav-link.active {
+                background-color: rgba(255,255,255,0.2);
+                border-radius: 5px;
+            }
+        }
+        .file-upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background-color: #f8f9fa;
+        }
+        .file-upload-area.dragover {
+            border-color: #667eea;
+            background-color: #e7f3ff;
+        }
+        
+        /* Step Indicators */
+        .step-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex: 1;
+            padding: 10px;
+        }
+        
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            right: -50%;
+            height: 2px;
+            background-color: #dee2e6;
+            z-index: 1;
+        }
+        
+        .step-indicator:last-child::before {
+            display: none;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #dee2e6;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .step-label {
+            font-size: 14px;
+            color: #6c757d;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .step-indicator.active .step-number {
+            background-color: #0d6efd;
+            color: white;
+        }
+        
+        .step-indicator.active .step-label {
+            color: #0d6efd;
+            font-weight: bold;
+        }
+        
+        .step-indicator.completed .step-number {
+            background-color: #198754;
+            color: white;
+        }
+        
+        .step-indicator.completed .step-label {
+            color: #198754;
+        }
+        
+        .step-indicator.completed::before {
+            background-color: #198754;
+        }
+        
+        .step-indicator.active::before {
+            background-color: #0d6efd;
+        }
+        
+        /* Upload Area Styles */
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8f9fa;
+        }
+        
+        .upload-area:hover {
+            border-color: #0d6efd;
+            background-color: #e7f3ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #0d6efd;
+            background-color: #e7f3ff;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover .upload-icon {
+            color: #0d6efd;
+        }
+        
+        /* Purple color utility */
+        .text-purple {
+            color: #6f42c1 !important;
+        }
+    </style>
+</head>
+<body class="gradient-bg">
+    {% if session.api_key_valid %}
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <i class="bi bi-file-text"></i> Werewolf CV
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                            <i class="bi bi-house"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'txt_to_vcf' %}active{% endif %}" href="{{ url_for('txt_to_vcf') }}">
+                            <i class="bi bi-arrow-up-circle"></i> TXT to VCF
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'vcf_to_txt' %}active{% endif %}" href="{{ url_for('vcf_to_txt') }}">
+                            <i class="bi bi-arrow-down-circle"></i> VCF to TXT
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'admin_navy' %}active{% endif %}" href="{{ url_for('admin_navy') }}">
+                            <i class="bi bi-people"></i> Admin & Navy
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'gabung_txt' %}active{% endif %}" href="{{ url_for('gabung_txt') }}">
+                            <i class="bi bi-union"></i> Gabung TXT
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'gabung_vcf' %}active{% endif %}" href="{{ url_for('gabung_vcf') }}">
+                            <i class="bi bi-collection"></i> Gabung VCF
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'split_txt' %}active{% endif %}" href="{{ url_for('split_txt') }}">
+                            <i class="bi bi-scissors"></i> Split TXT
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            <i class="bi bi-person-circle"></i> API: {{ session.api_key }}
+                            {% if api_key_expiry %}
+                            <br><small class="text-muted" style="font-size: 0.7rem;">
+                                <i class="bi bi-clock"></i> {{ api_key_expiry }}
+                                {% if api_key_remaining_days >= 0 %}
+                                    ({{ api_key_remaining_days }}h)
+                                {% else %}
+                                    <span class="text-danger">(EXP)</span>
+                                {% endif %}
+                            </small>
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // File upload drag and drop functionality
+        function setupFileUpload(uploadAreaId, fileInputId) {
+            const uploadArea = document.getElementById(uploadAreaId);
+            const fileInput = document.getElementById(fileInputId);
+            
+            if (!uploadArea || !fileInput) return;
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight(e) {
+                uploadArea.classList.add('dragover');
+            }
+            
+            function unhighlight(e) {
+                uploadArea.classList.remove('dragover');
+            }
+            
+            uploadArea.addEventListener('drop', handleDrop, false);
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    updateFileLabel(files[0].name);
+                }
+            }
+            
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    updateFileLabel(e.target.files[0].name);
+                }
+            });
+            
+            function updateFileLabel(fileName) {
+                const label = uploadArea.querySelector('.file-label');
+                if (label) {
+                    label.textContent = fileName;
+                }
+            }
+        }
+    </script>
+    
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

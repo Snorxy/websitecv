@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gabung VCF - VCF Converter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            border-radius: 8px !important;
+        }
+
+        .navbar .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .wizard-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .wizard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .wizard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .wizard-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex: 1;
+            max-width: 150px;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-number {
+            background: white;
+            color: #667eea;
+            transform: scale(1.1);
+        }
+
+        .step.completed .step-number {
+            background: #28a745;
+            color: white;
+        }
+
+        .step-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .step.active .step-label {
+            color: white;
+            font-weight: 600;
+        }
+
+        .step.completed .step-label {
+            color: white;
+            font-weight: 500;
+        }
+
+        .wizard-content {
+            padding: 3rem;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8f9fa;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 16px;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        @media (max-width: 768px) {
+            .wizard-title {
+                font-size: 2rem;
+            }
+            
+            .wizard-content {
+                padding: 20px;
+            }
+            
+            .upload-area {
+                padding: 30px 15px;
+            }
+            
+            .step-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <i class="bi bi-file-text"></i> Werewolf CV
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">
+                            <i class="bi bi-house"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('txt_to_vcf') }}">
+                            <i class="bi bi-arrow-up-circle"></i> TXT to VCF
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('vcf_to_txt') }}">
+                            <i class="bi bi-arrow-down-circle"></i> VCF to TXT
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_navy') }}">
+                            <i class="bi bi-people"></i> Admin & Navy
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('gabung_txt') }}">
+                            <i class="bi bi-union"></i> Gabung TXT
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('gabung_vcf') }}">
+                            <i class="bi bi-collection"></i> Gabung VCF
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('split_txt') }}">
+                            <i class="bi bi-scissors"></i> Split TXT
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            <i class="bi bi-person-circle"></i> API: {{ session.api_key }}
+                            {% if api_key_expiry %}
+                            <br><small class="text-muted" style="font-size: 0.7rem;">
+                                <i class="bi bi-clock"></i> {{ api_key_expiry }}
+                                {% if api_key_remaining_days >= 0 %}
+                                    ({{ api_key_remaining_days }}h)
+                                {% else %}
+                                    <span class="text-danger">(EXP)</span>
+                                {% endif %}
+                            </small>
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="wizard-container">
+            <!-- Header -->
+            <div class="wizard-header">
+                <h1 class="wizard-title">
+                    <i class="bi bi-collection"></i> Gabung VCF Files
+                </h1>
+                <p class="wizard-subtitle">Gabungkan beberapa file VCF menjadi satu file dengan nama kontak berurutan</p>
+                
+                <!-- Step Indicators -->
+                <div class="step-indicator">
+                    <div class="step active" id="step1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Upload Files</div>
+                    </div>
+                    <div class="step" id="step2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Preview</div>
+                    </div>
+                    <div class="step" id="step3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Download</div>
+                    </div>
+                </div>
+            </div>
+                    
+            <!-- Content -->
+            <div class="wizard-content">
+                <!-- Step 1: Upload Files & Settings -->
+                <div class="step-content active" id="step1-content">
+                    <h3 class="text-center mb-4">Upload File VCF & Pengaturan</h3>
+                    
+                    <form id="gabungVcfForm" enctype="multipart/form-data">
+                        <!-- File Upload Area -->
+                        <div class="upload-area mb-4" id="uploadArea" onclick="document.getElementById('vcf_files').click()">
+                            <i class="bi bi-cloud-upload upload-icon"></i>
+                            <h4>Pilih atau Drop Multiple File VCF</h4>
+                            <p class="text-muted mb-3">Minimal 2 file VCF diperlukan untuk digabung</p>
+                            <input type="file" 
+                                   id="vcf_files" 
+                                   name="vcf_files" 
+                                   multiple 
+                                   accept=".vcf" 
+                                   style="display: none;"
+                                   onchange="handleFileSelect(this.files)">
+                            <button type="button" class="btn btn-primary">
+                                <i class="bi bi-folder-open"></i> Pilih File VCF
+                            </button>
+                        </div>
+
+                        <!-- File List -->
+                        <div id="filesList" class="file-list mb-4" style="display: none;">
+                            <h6><i class="bi bi-files"></i> File Terpilih:</h6>
+                            <div id="filesContainer"></div>
+                            <small class="text-muted">
+                                <span id="filesCount">0</span> file terpilih
+                            </small>
+                        </div>
+
+                        <!-- Settings -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="contact_name" class="form-label fw-bold">
+                                    <i class="bi bi-person"></i> Nama Kontak Prefix
+                                </label>
+                                <input type="text" class="form-control" id="contact_name" name="contact_name" 
+                                       value="Gabung" placeholder="Gabung">
+                                <div class="form-text">Hasil: Gabung 001, Gabung 002, Gabung 003, ...</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="output_filename" class="form-label fw-bold">
+                                    <i class="bi bi-file-earmark"></i> Nama File Output
+                                </label>
+                                <input type="text" class="form-control" id="output_filename" name="output_filename" 
+                                       value="merged_contacts" placeholder="merged_contacts">
+                                <div class="form-text">Hasil: merged_contacts.vcf</div>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="button" class="btn btn-success btn-lg" onclick="processFiles()" disabled id="processBtn">
+                                <i class="bi bi-play-circle"></i> Proses & Preview
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                    
+                <!-- Step 2: Preview -->
+                <div class="step-content" id="step2-content">
+                    <h3 class="text-center mb-4">Preview Hasil Gabungan</h3>
+                    
+                    <div id="preview-content" class="border rounded p-3 mb-4" style="background: #f8f9fa;">
+                        <!-- Preview akan dimuat di sini -->
+                    </div>
+                    
+                    <div class="text-center">
+                        <button type="button" class="btn btn-secondary me-2" onclick="goToStep(1)">
+                            <i class="bi bi-arrow-left"></i> Kembali
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="confirmMerge()">
+                            <i class="bi bi-check-circle"></i> Konfirmasi & Download
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Download -->
+                <div class="step-content" id="step3-content">
+                    <h3 class="text-center mb-4">Download File Hasil</h3>
+                    
+                    <div id="download-content" class="text-center">
+                        <!-- Download content akan dimuat di sini -->
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-secondary me-2" onclick="resetForm()">
+                            <i class="bi bi-arrow-clockwise"></i> Mulai Lagi
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                            <i class="bi bi-house"></i> Kembali ke Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h5 id="loadingTitle">Memproses file VCF...</h5>
+                    <p class="text-muted mb-3" id="loadingMessage">Mohon tunggu sebentar</p>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                             role="progressbar" style="width: 0%" id="loadingProgress"></div>
+                    </div>
+                    <small class="text-muted mt-2 d-block" id="loadingStep">Memulai proses...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentStep = 1;
+        let processedData = null;
+        let selectedFiles = [];
+
+        // File handling
+        function handleFileSelect(files) {
+            selectedFiles = Array.from(files);
+            updateFilesList();
+            updateProcessButton();
+        }
+
+        function updateFilesList() {
+            const filesList = document.getElementById('filesList');
+            const filesContainer = document.getElementById('filesContainer');
+            const filesCount = document.getElementById('filesCount');
+            
+            if (selectedFiles.length === 0) {
+                filesList.style.display = 'none';
+                return;
+            }
+
+            filesList.style.display = 'block';
+            filesCount.textContent = selectedFiles.length;
+            
+            let html = '';
+            selectedFiles.forEach((file, index) => {
+                const size = (file.size / 1024).toFixed(1);
+                html += `
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-3 rounded border file-item" style="background: rgba(255, 255, 255, 0.9);">
+                        <div>
+                            <i class="bi bi-file-earmark-text text-primary me-2"></i>
+                            <span class="fw-bold">${file.name}</span>
+                            <small class="text-muted ms-2">(${size} KB)</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            filesContainer.innerHTML = html;
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFilesList();
+            updateProcessButton();
+            
+            // Update file input
+            const fileInput = document.getElementById('vcf_files');
+            const dt = new DataTransfer();
+            selectedFiles.forEach(file => dt.items.add(file));
+            fileInput.files = dt.files;
+        }
+
+        function updateProcessButton() {
+            const processBtn = document.getElementById('processBtn');
+            processBtn.disabled = selectedFiles.length < 2;
+        }
+
+        // Wizard navigation
+        function goToStep(step) {
+            // Update step indicators
+            document.querySelectorAll('.step').forEach((el, index) => {
+                el.classList.remove('active', 'completed');
+                if (index + 1 < step) {
+                    el.classList.add('completed');
+                } else if (index + 1 === step) {
+                    el.classList.add('active');
+                }
+            });
+
+            // Update content
+            document.querySelectorAll('.step-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(`step${step}-content`).classList.add('active');
+            
+            currentStep = step;
+        }
+
+        function nextStep() {
+            if (currentStep < 3) {
+                goToStep(currentStep + 1);
+            }
+        }
+
+        function processFiles() {
+            if (selectedFiles.length < 2) {
+                alert('Pilih minimal 2 file VCF untuk digabungkan');
+                return;
+            }
+            
+            // Show loading with progress
+            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+            loadingModal.show();
+            
+            updateProgress(20, 'Memvalidasi file...', 'Memeriksa format file VCF');
+            
+            const formData = new FormData();
+            
+            // Add all files
+            for (let file of selectedFiles) {
+                formData.append('vcf_files', file);
+            }
+            
+            // Add form data
+            formData.append('contact_name', document.getElementById('contact_name').value);
+            formData.append('output_filename', document.getElementById('output_filename').value);
+            
+            updateProgress(60, 'Menggabungkan kontak...', 'Memproses dan menggabungkan VCF');
+            
+            setTimeout(() => {
+                fetch('/gabung_vcf_files', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    updateProgress(80, 'Mempersiapkan hasil...', 'Finalisasi data gabungan');
+                    return response.json();
+                })
+                .then(data => {
+                    updateProgress(100, 'Selesai!', 'Proses berhasil diselesaikan');
+                    
+                    setTimeout(() => {
+                        loadingModal.hide();
+                        
+                        if (data.success) {
+                            processedData = data;
+                            showPreview(data);
+                            nextStep();
+                        } else {
+                            alert('Error: ' + (data.error || 'Terjadi kesalahan saat memproses file'));
+                        }
+                    }, 1000);
+                })
+                .catch(error => {
+                    loadingModal.hide();
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat memproses file. Silakan coba lagi.');
+                });
+            }, 1000);
+        }
+
+        function updateProgress(percent, title, message) {
+            document.getElementById('loadingProgress').style.width = percent + '%';
+            document.getElementById('loadingTitle').textContent = title;
+            document.getElementById('loadingStep').textContent = message;
+        }
+
+        function showPreview(data) {
+            const previewContent = document.getElementById('preview-content');
+            
+            previewContent.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-info-circle text-primary"></i> Informasi Gabungan:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Total File:</strong> ${data.original_files ? data.original_files.length : selectedFiles.length}</li>
+                            <li><strong>Total Kontak:</strong> ${data.merged_contacts || data.total_contacts || 'N/A'}</li>
+                            <li><strong>Nama Prefix:</strong> ${data.contact_name_prefix || data.contact_name}</li>
+                            <li><strong>File Output:</strong> ${data.output_filename}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-eye text-info"></i> Status:</h6>
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle"></i> File berhasil digabungkan!
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function confirmMerge() {
+            if (!processedData) {
+                alert('Data tidak tersedia. Silakan proses ulang.');
+                return;
+            }
+            
+            nextStep();
+            
+            // Show download content
+            const downloadContent = document.getElementById('download-content');
+            downloadContent.innerHTML = `
+                <div class="success-animation mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="text-success mb-3">File Berhasil Digabungkan!</h4>
+                <p class="text-muted mb-4">File VCF telah berhasil digabungkan</p>
+                <div class="d-grid gap-2 col-md-6 mx-auto">
+                    <a href="${processedData.download_url}" class="btn btn-success btn-lg">
+                        <i class="bi bi-download"></i> Download ${processedData.output_filename}
+                    </a>
+                </div>
+            `;
+        }
+
+        function resetForm() {
+            selectedFiles = [];
+            processedData = null;
+            document.getElementById('gabungVcfForm').reset();
+            document.getElementById('contact_name').value = 'Gabung';
+            document.getElementById('output_filename').value = 'merged_contacts';
+            updateFilesList();
+            updateProcessButton();
+            goToStep(1);
+        }
+
+        // Drag & Drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = Array.from(e.dataTransfer.files).filter(file => 
+                file.name.toLowerCase().endsWith('.vcf')
+            );
+            
+            if (files.length > 0) {
+                selectedFiles = files;
+                updateFilesList();
+                updateProcessButton();
+            }
+        });
+
+        // File input change handler
+        document.getElementById('vcf_files').addEventListener('change', function(e) {
+            handleFileSelect(this.files);
+        });
+    </script>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h5 id="loadingTitle">Memproses file...</h5>
+                    <p class="mb-3" id="loadingStep">Mohon tunggu sebentar</p>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar" id="loadingProgress" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

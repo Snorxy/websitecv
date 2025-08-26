@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Login - TXT Converter{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card card-custom">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-key display-4 text-primary mb-3"></i>
+                    <h3 class="card-title">Masukkan API Key</h3>
+                    <p class="text-muted">Silakan masukkan API key untuk mengakses fitur converter</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('verify_api') }}">
+                    <div class="mb-4">
+                        <label for="api_key" class="form-label">API Key</label>
+                        <input type="text" 
+                               class="form-control form-control-lg" 
+                               id="api_key" 
+                               name="api_key" 
+                               placeholder="Masukkan 12 karakter API key"
+                               maxlength="12"
+                               required>
+                        <div class="form-text">API key terdiri dari 12 karakter</div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg btn-custom">
+                            <i class="bi bi-arrow-right"></i> Masuk
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <small class="text-muted">
+                        Belum punya API key? Hubungi administrator.
+                    </small>
+                    <br>
+                    <a href="https://t.me/SS001111" target="_blank" class="btn btn-outline-primary btn-sm mt-2">
+                        <i class="bi bi-telegram"></i> Hubungi via Telegram
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card card-custom">
+            <div class="card-body p-4">
+                <h5 class="card-title">
+                    <i class="bi bi-info-circle"></i> Fitur yang Tersedia
+                </h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-arrow-up-circle text-primary me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h6 class="mb-0">TXT to VCF Converter</h6>
+                                <small class="text-muted">Konversi file kontak TXT ke format VCF</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-arrow-down-circle text-info me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h6 class="mb-0">VCF to TXT Converter</h6>
+                                <small class="text-muted">Ekstrak kontak dari VCF ke format TXT</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-people text-warning me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h6 class="mb-0">Admin & Navy Creator</h6>
+                                <small class="text-muted">Buat kontak admin dan navy dengan naming otomatis</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-union text-primary me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h6 class="mb-0">Gabung TXT Files</h6>
+                                <small class="text-muted">Gabungkan multiple file TXT menjadi satu</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-scissors text-success me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h6 class="mb-0">Split TXT File</h6>
+                                <small class="text-muted">Pisahkan file TXT besar menjadi bagian kecil</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-collection text-purple me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h6 class="mb-0">Gabung VCF Files</h6>
+                                <small class="text-muted">Gabungkan multiple file VCF dengan naming berurutan</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto format API key input
+    document.getElementById('api_key').addEventListener('input', function(e) {
+        let value = e.target.value.toUpperCase();
+        // Remove any non-alphanumeric characters
+        value = value.replace(/[^A-Z0-9]/g, '');
+        // Limit to 12 characters
+        if (value.length > 12) {
+            value = value.substring(0, 12);
+        }
+        e.target.value = value;
+    });
+    
+    // Focus on API key input when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('api_key').focus();
+    });
+</script>
+{% endblock %}

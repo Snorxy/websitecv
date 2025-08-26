@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - Manage API Keys{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center text-white mb-4">
+            <h1 class="display-5">
+                <i class="bi bi-shield-lock"></i> Admin Panel
+            </h1>
+            <p class="lead">Kelola API Keys untuk akses website</p>
+        </div>
+    </div>
+</div>
+
+<!-- Generate New API Key -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card card-custom">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-plus-circle"></i> Generate API Key Baru
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('generate_key') }}">
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Masa Berlaku (bulan)</label>
+                        <select class="form-select" id="duration" name="duration" required>
+                            <option value="1">1 Bulan</option>
+                            <option value="3">3 Bulan</option>
+                            <option value="6">6 Bulan</option>
+                            <option value="12" selected>1 Tahun</option>
+                            <option value="24">2 Tahun</option>
+                            <option value="60">5 Tahun</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Deskripsi (opsional)</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="description" 
+                               name="description" 
+                               placeholder="Contoh: Client A, Project B, dll"
+                               maxlength="100">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-key"></i> Generate API Key
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card card-custom">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle"></i> Statistik
+                </h5>
+            </div>
+            <div class="card-body">
+                {% set total_keys = api_keys|length %}
+                {% set now = moment().isoformat() %}
+                {% set active_keys = [] %}
+                {% set expired_keys = [] %}
+                {% for key, data in api_keys.items() %}
+                    {% if data.expiry_date > now %}
+                        {% set _ = active_keys.append(key) %}
+                    {% else %}
+                        {% set _ = expired_keys.append(key) %}
+                    {% endif %}
+                {% endfor %}
+                
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h3 class="text-primary">{{ total_keys }}</h3>
+                            <small class="text-muted">Total Keys</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h3 class="text-success">{{ active_keys|length }}</h3>
+                            <small class="text-muted">Aktif</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-danger">{{ expired_keys|length }}</h3>
+                        <small class="text-muted">Expired</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- API Keys List -->
+<div class="row">
+    <div class="col-12">
+        <div class="card card-custom">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-list"></i> Daftar API Keys
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if api_keys %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>API Key</th>
+                                    <th>Deskripsi</th>
+                                    <th>Dibuat</th>
+                                    <th>Expired</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for api_key, data in api_keys.items() %}
+                                {% set is_expired = data.expiry_date < now %}
+                                <tr>
+                                    <td>
+                                        <code class="text-primary">{{ api_key }}</code>
+                                        <button class="btn btn-sm btn-outline-secondary ms-2" 
+                                                onclick="copyToClipboard('{{ api_key }}')" 
+                                                title="Copy API Key">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </td>
+                                    <td>{{ data.description or '-' }}</td>
+                                    <td>{{ data.created_date[:16].replace('T', ' ') }}</td>
+                                    <td>{{ data.expiry_date[:16].replace('T', ' ') }}</td>
+                                    <td>
+                                        {% if is_expired %}
+                                            <span class="badge bg-danger">Expired</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Aktif</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="POST" 
+                                              action="{{ url_for('delete_key', api_key=api_key) }}" 
+                                              style="display: inline;"
+                                              onsubmit="return confirm('Yakin ingin menghapus API key {{ api_key }}?')">
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="bi bi-trash"></i> Hapus
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-key display-4 text-muted mb-3"></i>
+                        <h5 class="text-muted">Belum ada API key yang dibuat</h5>
+                        <p class="text-muted">Generate API key pertama Anda untuk memulai</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions -->
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-light btn-lg">
+            <i class="bi bi-box-arrow-right"></i> Logout Admin
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            // Show success toast
+            showToast('API Key berhasil dicopy!', 'success');
+        }, function(err) {
+            console.error('Could not copy text: ', err);
+            showToast('Gagal copy API Key', 'danger');
+        });
+    }
+    
+    function showToast(message, type) {
+        const toastHtml = `
+            <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        `;
+        
+        // Create toast container if it doesn't exist
+        let toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toastContainer';
+            toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            document.body.appendChild(toastContainer);
+        }
+        
+        // Add toast to container
+        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+        
+        // Show toast
+        const toastElement = toastContainer.lastElementChild;
+        const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+        toast.show();
+        
+        // Remove toast from DOM after it's hidden
+        toastElement.addEventListener('hidden.bs.toast', function() {
+            toastElement.remove();
+        });
+    }
+    
+    // Helper function for date formatting (fallback if moment.js fails)
+    function formatDate(dateString) {
+        try {
+            return moment(dateString).format('DD/MM/YYYY HH:mm');
+        } catch {
+            return new Date(dateString).toLocaleString('id-ID');
+        }
+    }
+</script>
+{% endblock %}

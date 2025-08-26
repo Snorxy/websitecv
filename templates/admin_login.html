@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card card-custom">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-shield-lock display-4 text-warning mb-3"></i>
+                    <h3 class="card-title">Admin Panel</h3>
+                    <p class="text-muted">Masukkan password admin untuk mengelola API keys</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('admin_verify') }}">
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password Admin</label>
+                        <input type="password" 
+                               class="form-control form-control-lg" 
+                               id="password" 
+                               name="password" 
+                               placeholder="Masukkan password admin"
+                               required>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning btn-lg btn-custom">
+                            <i class="bi bi-arrow-right"></i> Masuk Admin
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('index') }}" class="text-muted">
+                        <i class="bi bi-arrow-left"></i> Kembali ke halaman utama
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Focus on password input when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('password').focus();
+    });
+</script>
+{% endblock %}

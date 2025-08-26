@@ -1,0 +1,4 @@
+Flask==2.3.3
+Werkzeug==2.3.7
+phonenumbers==8.13.25
+gunicorn==21.2.0
